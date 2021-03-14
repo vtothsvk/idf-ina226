@@ -53,7 +53,7 @@ esp_err_t initSensor(ina226_t* ina, ina226_config_t config) {
         case RES_16b:
             conf |= (INA226_CONFIG_VBUS_8244 | INA226_CONFIG_SHUNT_8244);
         break;
-    }//switch
+    }//switch (ina -> config.resolution)
 
     ret = u16write(&ina -> i2c, INA226_CONF_REG, conf);
 

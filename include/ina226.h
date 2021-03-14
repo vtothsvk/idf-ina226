@@ -80,6 +80,9 @@
 
 #define INA266_DEFAULT_MODE INA226_CONFIG_MODE_SH_N_BUS_V_CONT
 
+/**
+ * INA226 configuration parameters structure
+ */
 typedef struct ina226_config{
     uint8_t resolution;
     uint16_t averaging;
@@ -88,17 +91,26 @@ typedef struct ina226_config{
     float maxI;
 }ina226_config_t;
 
+/**
+ * INA226 calibration parameters structure
+ */
 typedef struct ina226_calibaration{
     uint16_t cal;
     float lsb;
 }ina226_calibration_t;
 
+/**
+ * INA226 sensor device data structure
+ */
 typedef struct ina226{
     i2c_dev_t i2c;
     ina226_config_t config;
     ina226_calibration_t calibration;
 }ina226_t;
 
+/**
+ * Raw sensor values
+ */
 typedef struct ina_data_raw{
     union{
         int rawCurrent;
@@ -110,15 +122,76 @@ typedef struct ina_data_raw{
     };
 }ina_data_raw_t;
 
+/**
+ * Floating point sensor values
+ */
 typedef struct ina_data{
     float current;
     float voltage;
 }ina_data_t;
 
+/**
+ * @brief Initialize device descriptor
+ * 
+ * @param ina Device descriptor
+ * @param addr I2C address
+ * @param port I2C port number
+ * @param sda I2C SDA GPIO pin
+ * @param scl I2C SCL GPIO pin
+ * 
+ * @returns
+ *      ESP_OK if successfull
+ *      ESP_ERR othervise 
+ */
 esp_err_t initDesc(ina226_t* ina, uint8_t addr, i2c_port_t port, gpio_num_t sda, gpio_num_t scl);
+
+/**
+ * @brief Initialize INA226 sensor
+ * 
+ * @param ina Device descriptor
+ * @param config INA226 configuration
+ * 
+ * @returns
+ *      ESP_OK if successfull
+ *      ESP_ERR othervise 
+ */
 esp_err_t initSensor(ina226_t* ina, ina226_config_t config);
-esp_err_t readI(ina226_t* ina, ina_data_raw_t* data);
+
+/**
+ * @brief Gets result of a measurement in floating point representation
+ * 
+ * @param ina Device descriptor
+ * @param data pointer to a data structure to be filled with the result
+ * 
+ * @returns
+ *      ESP_OK if successfull
+ *      ESP_ERR othervise 
+ */
 esp_err_t getResults(ina226_t* ina, ina_data_t* data);
+
+/**
+ * @brief Reads data measured by the INA226 sensor
+ * 
+ * @param ina Device descriptor
+ * @param data pointer to a data structure to be filled with data
+ * 
+ * @returns
+ *      ESP_OK if successfull
+ *      ESP_ERR othervise 
+ */
+esp_err_t readI(ina226_t* ina, ina_data_raw_t* data);
+
+/**
+ * @brief 2 byte I2C write operation to a given 8 register
+ * 
+ * @param i2c I2C device descriptor
+ * @param reg Register address
+ * @param data data to be written
+ * 
+ * @returns
+ *      ESP_OK if successfull
+ *      ESP_ERR othervise 
+ */
 esp_err_t u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data);
 
 #endif//INA226_H_
