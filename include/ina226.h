@@ -14,7 +14,7 @@
 #define INA266_MSB 32768//2^15
 #define INA226_CAL 0.00512
 
-#define I2C_FREQ_HZ 1000000
+#define INA226_DEFAULT_I2C_FREQ 1000000
 
 /* *///Resolution///* */
 #define RES_9b  0
@@ -143,7 +143,7 @@ typedef struct ina_data{
  *      ESP_OK if successfull
  *      ESP_ERR othervise 
  */
-esp_err_t initDesc(ina226_t* ina, uint8_t addr, i2c_port_t port, gpio_num_t sda, gpio_num_t scl);
+esp_err_t i226InitDesc(ina226_t* ina, uint8_t addr, i2c_port_t port, gpio_num_t sda, gpio_num_t scl);
 
 /**
  * @brief Initialize INA226 sensor
@@ -155,7 +155,7 @@ esp_err_t initDesc(ina226_t* ina, uint8_t addr, i2c_port_t port, gpio_num_t sda,
  *      ESP_OK if successfull
  *      ESP_ERR othervise 
  */
-esp_err_t initSensor(ina226_t* ina, ina226_config_t config);
+esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config);
 
 /**
  * @brief Gets result of a measurement in floating point representation
@@ -167,7 +167,7 @@ esp_err_t initSensor(ina226_t* ina, ina226_config_t config);
  *      ESP_OK if successfull
  *      ESP_ERR othervise 
  */
-esp_err_t getResults(ina226_t* ina, ina_data_t* data);
+esp_err_t i226GetResults(ina226_t* ina, ina_data_t* data);
 
 /**
  * @brief Reads data measured by the INA226 sensor
@@ -179,7 +179,7 @@ esp_err_t getResults(ina226_t* ina, ina_data_t* data);
  *      ESP_OK if successfull
  *      ESP_ERR othervise 
  */
-esp_err_t readI(ina226_t* ina, ina_data_raw_t* data);
+esp_err_t i226ReadI(ina226_t* ina, ina_data_raw_t* data);
 
 /**
  * @brief 2 byte I2C write operation to a given 8 register
@@ -192,6 +192,6 @@ esp_err_t readI(ina226_t* ina, ina_data_raw_t* data);
  *      ESP_OK if successfull
  *      ESP_ERR othervise 
  */
-esp_err_t u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data);
+esp_err_t i226u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data);
 
 #endif//INA226_H_

@@ -1,22 +1,22 @@
 #include "ina226.h"
 
-esp_err_t initDesc(ina226_t* ina, uint8_t addr, i2c_port_t port, gpio_num_t sda, gpio_num_t scl) {
+esp_err_t i226InitDesc(ina226_t* ina, uint8_t addr, i2c_port_t port, gpio_num_t sda, gpio_num_t scl) {
     ina -> i2c.port = port;
     ina -> i2c.addr = addr;
     ina -> i2c.cfg.sda_io_num = sda;
     ina -> i2c.cfg.scl_io_num = scl;
-    ina -> i2c.cfg.master.clk_speed = I2C_FREQ_HZ;
+    ina -> i2c.cfg.master.clk_speed = INA226_DEFAULT_I2C_FREQ;
 
     return i2c_dev_create_mutex(&ina -> i2c);
 }//initDesc
 
-esp_err_t initSensor(ina226_t* ina, ina226_config_t config) {
+esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config) {
     esp_err_t ret = ESP_OK;
 
     ina -> calibration.lsb = ina -> config.maxI / INA266_MSB;
     ina -> calibration.cal = (uint16_t)(INA226_CAL / (ina -> calibration.lsb * ina -> config.shunt));
   
-    ret = u16write(&ina -> i2c, INA226_CAL_REG, ina -> calibration.cal);
+    ret = i226u16write(&ina -> i2c, INA226_CAL_REG, ina -> calibration.cal);
     if (ret) return ret;
 
     uint16_t conf = ina -> config.averaging | ina -> config.mode;
@@ -55,12 +55,12 @@ esp_err_t initSensor(ina226_t* ina, ina226_config_t config) {
         break;
     }//switch (ina -> config.resolution)
 
-    ret = u16write(&ina -> i2c, INA226_CONF_REG, conf);
+    ret = i226u16write(&ina -> i2c, INA226_CONF_REG, conf);
 
     return ret;
 }//initSensor
 
-esp_err_t readI(ina226_t* ina, ina_data_raw_t* data) {
+esp_err_t i226ReadI(ina226_t* ina, ina_data_raw_t* data) {
     esp_err_t ret = ESP_OK;
 
     ret = i2c_dev_read_reg(&ina -> i2c, INA226_I_REG, data -> rawCurrent_c, sizeof(data -> rawCurrent_c));
@@ -75,12 +75,12 @@ esp_err_t readI(ina226_t* ina, ina_data_raw_t* data) {
     return ret;
 }//readI
 
-esp_err_t getResults(ina226_t* ina, ina_data_t* data) {
+esp_err_t i226GetResults(ina226_t* ina, ina_data_t* data) {
     esp_err_t ret = ESP_OK;
 
     ina_data_raw_t raw;
 
-    ret = readI(ina, &raw);
+    ret = i226ReadI(ina, &raw);
     if (ret) return ret;
 
     data -> current = (float)raw.rawCurrent * ina -> calibration.lsb;
@@ -88,7 +88,7 @@ esp_err_t getResults(ina226_t* ina, ina_data_t* data) {
     return ret;
 }//getResults
 
-esp_err_t u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data) {
+esp_err_t i226u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data) {
     esp_err_t ret = ESP_OK;
     uint8_t buffer[2];
     buffer[1] = (data >> 8) & 0xff;
