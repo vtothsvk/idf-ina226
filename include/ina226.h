@@ -7,6 +7,10 @@
 #include "i2cdev.h"
 #include "esp_err.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PIN_CONFIG_TO_ADDR(a1, a0) ((0x40) | (a1 << 2) | (a0))
 #define CHECK_ARG(VAL) do { if (!(VAL)) return ESP_ERR_INVALID_ARG; } while (0)
 
@@ -193,5 +197,9 @@ esp_err_t i226ReadI(ina226_t* ina, ina_data_raw_t* data);
  *      ESP_ERR othervise 
  */
 esp_err_t i226u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif//INA226_H_
