@@ -73,13 +73,13 @@ esp_err_t i226ReadI(ina226_t* ina) {
     return ret;
 }//readI
 
-esp_err_t i266GetResults(ina226_t* ina, ina_data_t* data) {
+esp_err_t i266GetResults(ina226_t* ina, ina226_data_t* data) {
     data -> current = (float)ina -> lastData.rawCurrent * ina -> calibration.lsb;
     return ESP_OK;
 }
 
-esp_err_t i226GetMeasurement(ina226_t* ina, ina_data_t* data) {
-    //ina_data_raw_t raw;
+esp_err_t i226GetMeasurement(ina226_t* ina, ina226_data_t* data) {
+    //ina226_data_raw_t raw;
 
     esp_err_t ret = i226ReadI(ina);
     if (ret) return ret;
