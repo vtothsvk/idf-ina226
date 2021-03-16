@@ -104,15 +104,6 @@ typedef struct ina226_calibaration{
 }ina226_calibration_t;
 
 /**
- * INA226 sensor device data structure
- */
-typedef struct ina226{
-    i2c_dev_t i2c;
-    ina226_config_t config;
-    ina226_calibration_t calibration;
-}ina226_t;
-
-/**
  * Raw sensor values
  */
 typedef struct ina_data_raw{
@@ -133,6 +124,16 @@ typedef struct ina_data{
     float current;
     float voltage;
 }ina_data_t;
+
+/**
+ * INA226 sensor device data structure
+ */
+typedef struct ina226{
+    i2c_dev_t i2c;
+    ina226_config_t config;
+    ina226_calibration_t calibration;
+    ina_data_raw_t lastData;
+}ina226_t;
 
 /**
  * @brief Initialize device descriptor
@@ -162,6 +163,29 @@ esp_err_t i226InitDesc(ina226_t* ina, uint8_t addr, i2c_port_t port, gpio_num_t 
 esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config);
 
 /**
+ * @brief Pulls for a measurement and get its result in floating point representation
+ * 
+ * @param ina Device descriptor
+ * @param data pointer to a data structure to be filled with the result
+ * 
+ * @returns
+ *      ESP_OK if successfull
+ *      ESP_ERR othervise 
+ */
+esp_err_t i226GetMeasurement(ina226_t* ina, ina_data_t* data);
+
+/**
+ * @brief Reads data measured by the INA226 sensor
+ * 
+ * @param ina Device descriptor
+ * 
+ * @returns
+ *      ESP_OK if successfull
+ *      ESP_ERR othervise 
+ */
+esp_err_t i226ReadI(ina226_t* ina);
+
+/**
  * @brief Gets result of a measurement in floating point representation
  * 
  * @param ina Device descriptor
@@ -171,19 +195,7 @@ esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config);
  *      ESP_OK if successfull
  *      ESP_ERR othervise 
  */
-esp_err_t i226GetResults(ina226_t* ina, ina_data_t* data);
-
-/**
- * @brief Reads data measured by the INA226 sensor
- * 
- * @param ina Device descriptor
- * @param data pointer to a data structure to be filled with data
- * 
- * @returns
- *      ESP_OK if successfull
- *      ESP_ERR othervise 
- */
-esp_err_t i226ReadI(ina226_t* ina, ina_data_raw_t* data);
+esp_err_t i266GetResults(ina226_t* ina, ina_data_t* data);
 
 /**
  * @brief 2 byte I2C write operation to a given 8 register

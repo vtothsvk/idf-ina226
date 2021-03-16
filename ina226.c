@@ -60,41 +60,41 @@ esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config) {
     return ret;
 }//initSensor
 
-esp_err_t i226ReadI(ina226_t* ina, ina_data_raw_t* data) {
-    esp_err_t ret = ESP_OK;
-
-    ret = i2c_dev_read_reg(&ina -> i2c, INA226_I_REG, data -> rawCurrent_c, sizeof(data -> rawCurrent_c));
+esp_err_t i226ReadI(ina226_t* ina) {
+    esp_err_t ret = i2c_dev_read_reg(&ina -> i2c, INA226_I_REG, ina -> lastData.rawCurrent_c, sizeof(ina -> lastData.rawCurrent_c));
     if (ret) return ret;
 
-    data -> rawCurrent = (data -> rawCurrent_c[0] << 8) | (data -> rawCurrent_c[1]);
+    ina -> lastData.rawCurrent = (ina -> lastData.rawCurrent_c[0] << 8) | (ina -> lastData.rawCurrent_c[1]);
 
     #ifdef _DEBUG
-    cout << "raw uint16 data: " << this -> data.rawCurrent + 0 << endl;
+    cout << "raw uint16 data: " << ina -> lastData.rawCurrent + 0 << endl;
     #endif
 
     return ret;
 }//readI
 
-esp_err_t i226GetResults(ina226_t* ina, ina_data_t* data) {
-    esp_err_t ret = ESP_OK;
+esp_err_t i266GetResults(ina226_t* ina, ina_data_t* data) {
+    data -> current = (float)ina -> lastData.rawCurrent * ina -> calibration.lsb;
+    return ESP_OK;
+}
 
-    ina_data_raw_t raw;
+esp_err_t i226GetMeasurement(ina226_t* ina, ina_data_t* data) {
+    //ina_data_raw_t raw;
 
-    ret = i226ReadI(ina, &raw);
+    esp_err_t ret = i226ReadI(ina);
     if (ret) return ret;
 
-    data -> current = (float)raw.rawCurrent * ina -> calibration.lsb;
+    i266GetResults(ina, data);
 
     return ret;
 }//getResults
 
 esp_err_t i226u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data) {
-    esp_err_t ret = ESP_OK;
     uint8_t buffer[2];
     buffer[1] = (data >> 8) & 0xff;
     buffer[2] = data & 0xff;
 
-    ret = i2c_dev_write(i2c, &reg, sizeof(reg), buffer, sizeof(buffer));
+    esp_err_t ret = i2c_dev_write(i2c, &reg, sizeof(reg), buffer, sizeof(buffer));
     
     return ret;
 }//u16write
