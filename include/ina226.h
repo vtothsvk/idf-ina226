@@ -11,10 +11,11 @@
 extern "C" {
 #endif
 
+#define _DEBUG
+
 #define PIN_CONFIG_TO_ADDR(a1, a0) ((0x40) | (a1 << 2) | (a0))
 #define CHECK_ARG(VAL) do { if (!(VAL)) return ESP_ERR_INVALID_ARG; } while (0)
 
-#define DEFAULT_CALIBRATION 256//LSB = 1mA @ .02R shunt
 #define INA266_MSB 32768//2^15
 #define INA226_CAL 0.00512
 
@@ -130,7 +131,6 @@ typedef struct ina226_data{
  */
 typedef struct ina226{
     i2c_dev_t i2c;
-    ina226_config_t config;
     ina226_calibration_t calibration;
     ina226_data_raw_t lastData;
 }ina226_t;
@@ -195,7 +195,7 @@ esp_err_t i226ReadI(ina226_t* ina);
  *      ESP_OK if successfull
  *      ESP_ERR othervise 
  */
-esp_err_t i266GetResults(ina226_t* ina, ina226_data_t* data);
+esp_err_t i226GetResults(ina226_t* ina, ina226_data_t* data);
 
 /**
  * @brief 2 byte I2C write operation to a given 8 register
