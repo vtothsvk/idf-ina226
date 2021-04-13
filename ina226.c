@@ -21,7 +21,10 @@ esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config) {
     #endif
   
     ret = i226u16write(&ina -> i2c, INA226_CAL_REG, ina -> calibration.cal);
-    if (ret) return ret;
+    if (ret) {
+        printf("cal ret: %d\r\n", ret);
+        return ret; 
+    }
 
     uint16_t conf = config.averaging | config.mode;
 
@@ -59,6 +62,9 @@ esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config) {
         break;
     }//switch (config.resolution)
 
+    #ifdef _DEBUG
+    printf("config: %d\n", conf);
+    #endif
     ret = i226u16write(&ina -> i2c, INA226_CONF_REG, conf);
 
     return ret;
