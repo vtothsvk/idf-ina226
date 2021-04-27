@@ -17,6 +17,8 @@ extern "C" {
 #define INA266_MSB 32768//2^15
 #define INA226_CAL 0.00512
 
+#define INA226_MAX_VALID_I  65000
+
 #define INA226_DEFAULT_I2C_FREQ 1000000
 
 /* *///Resolution///* */

@@ -84,6 +84,10 @@ esp_err_t i226ReadI(ina226_t* ina) {
 
     ina -> lastData.rawCurrent = (ina -> lastData.rawCurrent_c[0] << 8) | (ina -> lastData.rawCurrent_c[1]);
 
+    if (ina -> lastData.rawCurrent > INA226_MAX_VALID_I) {
+        ina -> lastData.rawCurrent = 0;
+    }
+
     #ifdef DEBUG
     printf("raw u16: %d", ina -> lastData.rawCurrent);
     #endif
