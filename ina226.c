@@ -60,14 +60,19 @@ esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config) {
     }//switch (config.resolution)
 
     ret = i226u16write(&ina -> i2c, INA226_CONF_REG, conf);
+    printf("conf ret: %d\r\n", ret);
 
     return ret;
 }//initSensor
 
 esp_err_t i226ReadI(ina226_t* ina) {
-    //uint8_t buffer[2];
-    esp_err_t ret = i2c_dev_read_reg(&ina -> i2c, INA226_I_REG, ina -> lastData.rawCurrent_c, sizeof(ina -> lastData.rawCurrent_c));
-    //esp_err_t ret = i2c_dev_read_reg(&ina -> i2c, INA226_I_REG, buffer, 2);
+    uint8_t buffer = INA226_I_REG;
+    
+    esp_err_t ret = i2c_dev_write(&ina -> i2c, NULL, 0, &buffer, 1);
+    if (ret) return ret;
+
+    ret = i2c_dev_read(&ina -> i2c, NULL, 0, ina -> lastData.rawCurrent_c, sizeof(ina -> lastData.rawCurrent_c));
+    //esp_err_t ret = i2c_dev_read_reg(&ina -> i2c, INA226_I_REG, ina -> lastData.rawCurrent_c, sizeof(ina -> lastData.rawCurrent_c));
     if (ret) return ret;
 
     #ifdef _DEBUG
@@ -104,11 +109,14 @@ esp_err_t i226GetMeasurement(ina226_t* ina, ina226_data_t* data) {
 }//getResults
 
 esp_err_t i226u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data) {
-    uint8_t buffer[2];
+    uint8_t buffer[3];
+    buffer[0] = reg;
     buffer[1] = (data >> 8) & 0xff;
     buffer[2] = data & 0xff;
+    
+    printf("data: %d\r\n0x%x 0x%x\r\n", data, buffer[1], buffer[2]);
 
-    esp_err_t ret = i2c_dev_write(i2c, &reg, sizeof(reg), buffer, sizeof(buffer));
+    esp_err_t ret = i2c_dev_write(i2c, NULL, 0, &buffer[0], sizeof(buffer));
     
     return ret;
 }//u16write
