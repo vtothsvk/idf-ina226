@@ -11,8 +11,6 @@
 extern "C" {
 #endif
 
-#define _DEBUG
-
 #define PIN_CONFIG_TO_ADDR(a1, a0) ((0x40) | (a1 << 2) | (a0))
 #define CHECK_ARG(VAL) do { if (!(VAL)) return ESP_ERR_INVALID_ARG; } while (0)
 
