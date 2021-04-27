@@ -16,7 +16,7 @@ esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config) {
     ina -> calibration.lsb = config.maxI / INA266_MSB;
     ina -> calibration.cal = (uint16_t)(INA226_CAL / (ina -> calibration.lsb * config.shunt));
 
-    #ifdef _DEBUG
+    #ifdef DEBUG
     printf("cal: %d\r\n", ina -> calibration.cal);
     #endif
   
@@ -60,7 +60,10 @@ esp_err_t i226InitSensor(ina226_t* ina, ina226_config_t config) {
     }//switch (config.resolution)
 
     ret = i226u16write(&ina -> i2c, INA226_CONF_REG, conf);
+
+    #ifdef DEBUG
     printf("conf ret: %d\r\n", ret);
+    #endif
 
     return ret;
 }//initSensor
@@ -72,21 +75,17 @@ esp_err_t i226ReadI(ina226_t* ina) {
     if (ret) return ret;
 
     ret = i2c_dev_read(&ina -> i2c, NULL, 0, ina -> lastData.rawCurrent_c, sizeof(ina -> lastData.rawCurrent_c));
-    //esp_err_t ret = i2c_dev_read_reg(&ina -> i2c, INA226_I_REG, ina -> lastData.rawCurrent_c, sizeof(ina -> lastData.rawCurrent_c));
     if (ret) return ret;
 
-    #ifdef _DEBUG
+    #ifdef DEBUG
     printf("raw data:\r\nraw[0]: %d\r\nraw[1]: %d\r\n", ina -> lastData.rawCurrent_c[0], ina -> lastData.rawCurrent_c[1]);
     //printf("raw data:\r\nraw[0]: %d\r\nraw[1]: %d\r\n", buffer[0], buffer[1]);
     #endif
 
     ina -> lastData.rawCurrent = (ina -> lastData.rawCurrent_c[0] << 8) | (ina -> lastData.rawCurrent_c[1]);
-    //uint16_t buffer1 = (buffer[0] << 8) | (buffer[1]);
 
-    #ifdef _DEBUG
+    #ifdef DEBUG
     printf("raw u16: %d", ina -> lastData.rawCurrent);
-    //printf("raw u16: %d", buffer1);
-    //cout << "raw uint16 data: " << ina -> lastData.rawCurrent + 0 << endl;
     #endif
 
     return ret;
@@ -98,8 +97,6 @@ esp_err_t i226GetResults(ina226_t* ina, ina226_data_t* data) {
 }
 
 esp_err_t i226GetMeasurement(ina226_t* ina, ina226_data_t* data) {
-    //ina226_data_raw_t raw;
-
     esp_err_t ret = i226ReadI(ina);
     if (ret) return ret;
 
@@ -114,7 +111,9 @@ esp_err_t i226u16write(i2c_dev_t* i2c, uint8_t reg, uint16_t data) {
     buffer[1] = (data >> 8) & 0xff;
     buffer[2] = data & 0xff;
     
+    #ifdef DEBUG
     printf("data: %d\r\n0x%x 0x%x\r\n", data, buffer[1], buffer[2]);
+    #endif
 
     esp_err_t ret = i2c_dev_write(i2c, NULL, 0, &buffer[0], sizeof(buffer));
     
